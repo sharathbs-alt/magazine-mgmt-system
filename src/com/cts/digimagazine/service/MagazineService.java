@@ -7,6 +7,7 @@ import com.cts.digimagazine.dao.impl.MagazineDAOImpl;
 import com.cts.digimagazine.model.Magazine;
 
 public class MagazineService {
+	
 	 private MagazineDAO magazineDAO;
 
 	    public MagazineService() {
@@ -47,10 +48,8 @@ public class MagazineService {
 	        }
 	    }
 
-	    private void addMagazine(Scanner scanner) {
-	        System.out.print("Enter Magazine ID: ");
-	        int id = scanner.nextInt();
-	        scanner.nextLine(); // Consume newline
+	    private void addMagazine(Scanner scanner){
+	    	
 	        System.out.print("Enter Magazine Title: ");
 	        String title = scanner.nextLine();
 	        System.out.print("Enter Genre: ");
@@ -60,43 +59,60 @@ public class MagazineService {
 	        System.out.print("Enter Publisher: ");
 	        String publisher = scanner.nextLine();
 
-	        Magazine magazine = new Magazine(id, title, genre, frequency, publisher);
-	        magazineDAO.addMagazine(magazine);
+	        Magazine magazine = new Magazine( title, genre, frequency, publisher);
+	        try {
+	        	magazineDAO.addMagazine(magazine);
+	        }catch(Exception e) {
+	        	throw new RuntimeException("Error connecting to the DB" +e);
+	        }
 	    }
 
 	    private void viewMagazines() {
-	        magazineDAO.viewMagazine(null); // Updated viewMagazine does not require parameters; use DAO's implementation.
+	    	try {
+	    		
+	    		magazineDAO.viewMagazine(null); // Updated viewMagazine does not require parameters; use DAO's implementation.
+	    	}catch(Exception e) {
+	    		throw new RuntimeException("Coudlnt fetch the data" +e);
+	    	}
 	    }
 
 	    private void updateMagazine(Scanner scanner) {
-	        System.out.print("Enter Magazine ID to update: ");
-	        int id = scanner.nextInt();
-	        scanner.nextLine();
-	        Magazine existingMagazine = magazineDAO.findMagazineById(id);
-	        if (existingMagazine == null) {
-	            System.out.println("Magazine with ID " + id + " not found.");
-	            return;
-	        }
-	        
-	        Magazine updatedMagazine = new Magazine(id, "", "", "", ""); 
-	        System.out.print("Enter new Title: ");
-	        updatedMagazine.setTitle(scanner.nextLine());
-	        System.out.print("Enter new Genre: ");
-	        updatedMagazine.setGenre(scanner.nextLine());
-	        System.out.print("Enter new Publication Frequency: ");
-	        updatedMagazine.setPublicationFrequency(scanner.nextLine());
-	        System.out.print("Enter new Publisher: ");
-	        updatedMagazine.setPublisher(scanner.nextLine());
+	    	 System.out.print("Enter Magazine ID to update: ");
+	    	    int id = scanner.nextInt();
+	    	    scanner.nextLine(); 
+	    	    Magazine existingMagazine = magazineDAO.findMagazineById(id);
+	    	    if (existingMagazine == null) {
+	    	        System.out.println("Magazine with ID " + id + " not found.");
+	    	        return;
+	    	    }
 
-	        magazineDAO.updateMagazine(updatedMagazine);
-	    }
+	    	    Magazine updatedMagazine = new Magazine(id,"", "", "", "");
+	    	    System.out.print("Enter new Title: ");
+	    	    updatedMagazine.setTitle(scanner.nextLine());
+	    	    System.out.print("Enter new Genre: ");
+	    	    updatedMagazine.setGenre(scanner.nextLine());
+	    	    System.out.print("Enter new Publication Frequency: ");
+	    	    updatedMagazine.setPublicationFrequency(scanner.nextLine());
+	    	    System.out.print("Enter new Publisher: ");
+	    	    updatedMagazine.setPublisher(scanner.nextLine());
+
+	    	    try {
+	    	        magazineDAO.updateMagazine(updatedMagazine);
+	    	    } catch (Exception e) {
+	    	        throw new RuntimeException("Operation couldn't be performed: " + e.getMessage());
+	    	    }
+	    	}
 
 	    private void deleteMagazine(Scanner scanner) {
 	        System.out.print("Enter Magazine ID to delete: ");
 	        int id = scanner.nextInt();
 	        scanner.nextLine(); // Consume newline
 
-	        Magazine magazine = new Magazine(id, "", "", "", ""); // Initialize with default empty values
-	        magazineDAO.deleteMagazine(magazine);
+	        Magazine magazine = new Magazine( id,"", "", "", ""); // Initialize with default empty values
+	        try {	
+			magazineDAO.deleteMagazine(magazine);
+	        }catch(Exception e) {
+	        	throw new RuntimeException("Operation couldnt be performed"+e);
+	        }
 	    }
 }

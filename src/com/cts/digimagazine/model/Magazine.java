@@ -8,8 +8,16 @@ public class Magazine {
 	private String publicationFrequency;
 	private String publisher;
 	
-	public Magazine(int magazineId,String title,String genre,String publicationFrequency,String publisher) {
+	public Magazine(int magazineId, String title, String genre, String publicationFrequency, String publisher) {
+		super();
 		this.magazineId = magazineId;
+		this.title = title;
+		this.genre = genre;
+		this.publicationFrequency = publicationFrequency;
+		this.publisher = publisher;
+	}
+	
+	public Magazine(String title,String genre,String publicationFrequency,String publisher) {
 		this.title = title;
 		this.genre = genre;
 		this.publicationFrequency = publicationFrequency;
@@ -38,6 +46,7 @@ public class Magazine {
 		return genre;
 	}
 	
+
 	public void setGenre(String genre) {
 		this.genre = genre;
 	}
