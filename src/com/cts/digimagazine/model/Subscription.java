@@ -1,5 +1,6 @@
 package com.cts.digimagazine.model;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Subscription {
@@ -9,6 +10,8 @@ public class Subscription {
     private Date subscriptionDate;
     private Date expiryDate;
     private String status;
+    
+    private static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat("dd MMM yyyy");
 
     public Subscription(int subscriptionId, int userId, int magazineId, Date subscriptionDate, Date expiryDate, String status) {
         this.subscriptionId = subscriptionId;
@@ -68,9 +71,17 @@ public class Subscription {
         this.status = status;
     }
 
+    private String formatSubDate() {
+        return DISPLAY_DATE_FORMAT.format(subscriptionDate);
+    }
+    
+    private String formatExpDate() {
+        return DISPLAY_DATE_FORMAT.format(expiryDate);
+    }
+    
     @Override
     public String toString() {
         return "Subscription [ID=" + subscriptionId + ", User ID=" + userId + ", Magazine ID=" + magazineId +
-               ", Subscription Date=" + subscriptionDate + ", Expiry Date=" + expiryDate + ", Status=" + status + "]";
+               ", Subscription Date=" + formatSubDate() + ", Expiry Date=" + formatExpDate() + ", Status=" + status + "]";
     }
 }
