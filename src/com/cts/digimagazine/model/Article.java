@@ -1,5 +1,6 @@
 package com.cts.digimagazine.model;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Article {
@@ -10,6 +11,8 @@ public class Article {
     private String content;
     private Date publishDate;
 
+    private static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat("dd MMM yyyy");
+    
     public Article(int articleId, int magazineId, String title, String author, String content, Date publishDate) {
         this.articleId = articleId;
         this.magazineId = magazineId;
@@ -68,8 +71,17 @@ public class Article {
         this.publishDate = publishDate;
     }
 
+    //Helper
+    private String formatPublishDate() {
+        return DISPLAY_DATE_FORMAT.format(publishDate);
+    }
     @Override
     public String toString() {
-        return "Article [ID=" + articleId + ", Magazine ID=" + magazineId + ", Title=" + title + ", Author=" + author + "]";
+        return "Article [ID=" + articleId + 
+        		", Magazine ID=" + magazineId + 
+        		", Title=" + title + 
+        		", Author=" + author +
+        		", Content="+content+
+        		", Publish Date= "+formatPublishDate()+ "]";
     }
 }

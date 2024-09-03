@@ -2,7 +2,6 @@ package com.cts.digimagazine.dao.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import com.cts.digimagazine.model.Magazine;
 import com.cts.digimagazine.dao.MagazineDAO;
