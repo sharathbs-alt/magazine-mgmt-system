@@ -52,6 +52,7 @@ public class MagazineDAOImpl implements MagazineDAO {
 	        		System.out.println("No magazines Found");
 	        		return;
 	        	}
+	        	System.out.println("");
 	        	while(resultSet.next()) {
 	        		Magazine mag = new Magazine(
 	                        resultSet.getString("title"),

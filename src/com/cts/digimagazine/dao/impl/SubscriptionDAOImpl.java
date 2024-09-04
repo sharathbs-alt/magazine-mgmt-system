@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.cts.digimagazine.dao.SubscriptionDAO;
+import com.cts.digimagazine.exceptions.InvalidSubscriptionStatusException;
+import com.cts.digimagazine.exceptions.MagazineNotFoundException;
+import com.cts.digimagazine.exceptions.UserNotFoundException;
 import com.cts.digimagazine.model.Subscription;
 import com.cts.digimagazine.util.DatabaseUtil;
 
@@ -51,16 +54,25 @@ public class SubscriptionDAOImpl implements SubscriptionDAO {
         }
         return false;
     }
+    private boolean isValidStatus(String status) {
+        return "active".equalsIgnoreCase(status) || "inactive".equalsIgnoreCase(status);
+    }
+    
     @Override
     public void addSubscription(Subscription subscription) throws SQLException {
     	if (!isUserIdValid(subscription.getUserId())) {
-            throw new RuntimeException("Invalid user_id: " + subscription.getUserId());
+            throw new UserNotFoundException("User with given Id "+ subscription.getUserId()+" doesnt exist " );
         }
 
         // Check if magazine_id is valid
         if (!isMagazineIdValid(subscription.getMagazineId())) {
-            throw new RuntimeException("Invalid magazine_id: " + subscription.getMagazineId());
+            throw new MagazineNotFoundException("Magazine with given Id "+ + subscription.getMagazineId()+" doesnt exist: ");
         }
+        
+        if (!isValidStatus(subscription.getStatus())) {
+            throw new InvalidSubscriptionStatusException("Invalid subscription status provided: " + subscription.getStatus());
+        }
+        
     	String query = "INSERT INTO Subscription (user_id, magazine_id, subscription_date, expiry_date, status) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = dbUtil.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
@@ -73,7 +85,7 @@ public class SubscriptionDAOImpl implements SubscriptionDAO {
 
             int rowsInserted = statement.executeUpdate();
             if (rowsInserted > 0) {
-                System.out.println("A new subscription was inserted successfully!");
+                System.out.println("A new subscription was created successfully!");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -91,6 +103,7 @@ public class SubscriptionDAOImpl implements SubscriptionDAO {
             	 System.out.println("No Subscriptions Found");
             	 return;
              }
+             System.out.println("");
             while (resultSet.next()) {
                 Subscription sub = new Subscription(
                         resultSet.getInt("subscription_id"),
@@ -117,6 +130,9 @@ public class SubscriptionDAOImpl implements SubscriptionDAO {
         // Check if magazine_id is valid
         if (!isMagazineIdValid(subscription.getMagazineId())) {
             throw new RuntimeException("Invalid magazine_id: " + subscription.getMagazineId());
+        }
+        if (!isValidStatus(subscription.getStatus())) {
+            throw new InvalidSubscriptionStatusException("Invalid subscription status provided: " + subscription.getStatus());
         }
     	String query = "UPDATE Subscription SET user_id = ?, magazine_id = ?, subscription_date = ?, expiry_date = ?, status = ? WHERE subscription_id = ?";
         try (Connection connection = dbUtil.getConnection();

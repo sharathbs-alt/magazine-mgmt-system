@@ -16,13 +16,16 @@ public class MagazineService {
 
 	    public void manageMagazines(Scanner scanner) {
 	        while (true) {
+	        	System.out.println("");
 	            System.out.println("=== Magazine Management ===");
 	            System.out.println("1. Add a new magazine");
 	            System.out.println("2. View magazine details");
 	            System.out.println("3. Update magazine information");
 	            System.out.println("4. Delete a magazine");
 	            System.out.println("5. Go back to the main menu");
+	            System.out.println("");
 	            System.out.print("Choose an option: ");
+	            System.out.println("");
 
 	            int choice = scanner.nextInt();
 	            scanner.nextLine(); // Consume newline

@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.cts.digimagazine.dao.SubscriptionDAO;
 import com.cts.digimagazine.dao.impl.SubscriptionDAOImpl;
+import com.cts.digimagazine.exceptions.SubscriptionNotFoundException;
 import com.cts.digimagazine.model.Subscription;
 
 public class SubscriptionService {
@@ -20,17 +21,21 @@ public class SubscriptionService {
     public SubscriptionService() {
         this.subscriptionDAO = new SubscriptionDAOImpl();
         this.dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        this.dateFormat.setLenient(false);
     }
 
     public void manageSubscriptions(Scanner scanner) {
         while (true) {
+        	System.out.println("");
             System.out.println("=== Subscription Management ===");
             System.out.println("1. Add a new subscription");
             System.out.println("2. View subscription details");
             System.out.println("3. Update subscription information");
             System.out.println("4. Delete a subscription");
             System.out.println("5. Go back to the main menu");
+            System.out.println("");
             System.out.print("Choose an option: ");
+            System.out.println("");
 
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
@@ -56,6 +61,8 @@ public class SubscriptionService {
         }
     }
 
+    //Helper for Validating status
+    
     private void addSubscription(Scanner scanner) {
         System.out.print("Enter User ID: ");
         int userId = scanner.nextInt();
@@ -67,14 +74,14 @@ public class SubscriptionService {
         String subscriptionDateString = scanner.nextLine();
         System.out.print("Enter Expiry Date (DD-MM-YYYY): ");
         String expiryDateString = scanner.nextLine();
-        System.out.print("Enter Status: ");
+        System.out.print("Enter Status (Active/Inactive): ");
         String status = scanner.nextLine();
         
         // Parse dates using SimpleDateFormat
         Date subscriptionDate = parseDate(subscriptionDateString);
         Date expiryDate = parseDate(expiryDateString);
         if (subscriptionDate == null || expiryDate == null) {
-            System.out.println("Invalid date format. Please use DD-MM-YYYY.");
+        	 System.out.println("Invalid date format. Please use DD-MM-YYYY.");
             return;
         }
 
@@ -103,7 +110,7 @@ public class SubscriptionService {
         try {
             existingSubscription = subscriptionDAO.findSubscriptionById(subscriptionId);
         } catch (SQLException e) {
-            throw new RuntimeException("Error finding subscription by ID: " + e.getMessage());
+            throw new SubscriptionNotFoundException("Error finding subscription by ID: " + e.getMessage());
         }
         if (existingSubscription == null) {
             System.out.println("Subscription with ID " + subscriptionId + " not found.");
@@ -127,8 +134,8 @@ public class SubscriptionService {
         Date subscriptionDate = parseDate(subscriptionDateString);
         Date expiryDate = parseDate(expiryDateString);
         if (subscriptionDate == null || expiryDate == null) {
-            System.out.println("Invalid date format. Please use DD-MM-YYYY.");
-            return;
+        	 System.out.println("Invalid date format. Please use DD-MM-YYYY.");
+        	 return;
         }
 
         Subscription updatedSubscription = new Subscription(subscriptionId, userId, magazineId, subscriptionDate, expiryDate, status);
@@ -166,6 +173,6 @@ public class SubscriptionService {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(() -> {
             subscriptionDAO.updateSubscriptionStatus();
-        }, 0, 1, TimeUnit.DAYS); // Runs every day
+        }, 0, 1, TimeUnit.DAYS);
     }
 }

@@ -11,7 +11,7 @@ public class Subscription {
     private Date expiryDate;
     private String status;
     
-    private static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat("dd MMM yyyy");
+    private static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyy");
 
     public Subscription(int subscriptionId, int userId, int magazineId, Date subscriptionDate, Date expiryDate, String status) {
         this.subscriptionId = subscriptionId;

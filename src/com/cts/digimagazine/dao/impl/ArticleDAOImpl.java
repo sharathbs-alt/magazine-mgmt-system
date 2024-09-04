@@ -5,17 +5,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
+//import java.util.ArrayList;
+//import java.util.List;
 
 import com.cts.digimagazine.model.Article;
 import com.cts.digimagazine.util.DatabaseUtil;
 import com.cts.digimagazine.dao.ArticleDAO;
+import com.cts.digimagazine.exceptions.MagazineNotFoundException;
 
 public class ArticleDAOImpl implements ArticleDAO {
 
 	private DatabaseUtil dbUtil = new DatabaseUtil();
-	private List<Article> articles = new ArrayList<>();
+	//private List<Article> articles = new ArrayList<>();
 
 	//Helper for checking if the corresponding magazine exist or not
 		public boolean isMagazineIdValid(int magazineId) throws SQLException {
@@ -36,7 +37,7 @@ public class ArticleDAOImpl implements ArticleDAO {
 		@Override
 	    public void addArticle(Article article) throws SQLException {
 			if (!isMagazineIdValid(article.getMagazineId())) {
-		        throw new RuntimeException("Invalid magazine_id: " + article.getMagazineId());
+		        throw new MagazineNotFoundException("Invalid magazine_id: " + article.getMagazineId());
 		    }
 			
 			String query = "INSERT INTO Article (magazine_id, title, author, content, publish_date) VALUES (?, ?, ?, ?, ?)";
@@ -70,7 +71,7 @@ public class ArticleDAOImpl implements ArticleDAO {
 	        		System.out.println("No articles Found");
 	        		return;
 	        	}
-	        	System.out.println("Fetching data");
+	        	System.out.println("");
 	            while (resultSet.next()) {
 	                Article a = new Article(
 	                        resultSet.getInt("article_id"),
@@ -92,7 +93,7 @@ public class ArticleDAOImpl implements ArticleDAO {
 	    @Override
 	    public void updateArticle(Article article) throws SQLException{
 	    	if (!isMagazineIdValid(article.getMagazineId())) {
-	            throw new RuntimeException("Invalid magazine_id: " + article.getMagazineId());
+	            throw new MagazineNotFoundException("Invalid magazine_id: " + article.getMagazineId());
 	        }
 	    	String query = "UPDATE Article SET magazine_id = ?, title = ?, author = ?, content = ?, publish_date = ? WHERE article_id = ?";
 	        try (Connection connection = dbUtil.getConnection();

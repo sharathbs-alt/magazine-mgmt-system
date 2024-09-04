@@ -3,8 +3,15 @@ package com.cts.digimagazine.service;
 import java.util.Scanner;
 import com.cts.digimagazine.dao.ArticleDAO;
 import com.cts.digimagazine.dao.impl.ArticleDAOImpl;
+import com.cts.digimagazine.exceptions.ArticleNotFoundException;
+import com.cts.digimagazine.exceptions.MagazineNotFoundException;
 import com.cts.digimagazine.model.Article;
+import com.cts.digimagazine.util.DatabaseUtil;
+
 import java.util.Date;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,17 +23,21 @@ public class ArticleService {
     public ArticleService() {
         this.articleDAO = new ArticleDAOImpl(); 
         this.dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        this.dateFormat.setLenient(false);
     }
 
     public void manageArticles(Scanner scanner) {
         while (true) {
+        	System.out.println("");
             System.out.println("=== Article Management ===");
             System.out.println("1. Add a new article");
             System.out.println("2. View article details");
             System.out.println("3. Update article information");
             System.out.println("4. Delete an article");
             System.out.println("5. Go back to the main menu");
+            System.out.println("");
             System.out.print("Choose an option: ");
+            System.out.println("");
 
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
@@ -96,8 +107,9 @@ public class ArticleService {
         
         Article existingArticle = articleDAO.findArticleById(articleId);
         if (existingArticle == null) {
-            System.out.println("Article with ID " + articleId + " not found.");
-            return;
+//            System.out.println("Article with ID " + articleId + " not found.");
+//            return;
+        	throw new ArticleNotFoundException("Article with ID " + articleId + " not found.");
         }
 
         System.out.print("Enter new Magazine ID: ");

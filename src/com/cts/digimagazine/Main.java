@@ -15,12 +15,15 @@ public class Main {
 		SubscriptionService subscriptionService = new SubscriptionService();
 		
 		while(true) {
+			System.out.println("");
 			System.out.println("=== Digital Magazine Management System ===");
 			System.out.println("1. Magazine Management");
 			System.out.println("2. Article Management");
 			System.out.println("3. Subscription Management");
 			System.out.println("4. Exit");
+			System.out.println("");
 			System.out.print("Choose an option : ");
+			System.out.println("");
 			
 			int choice = scanner.nextInt();
 			switch(choice) {
