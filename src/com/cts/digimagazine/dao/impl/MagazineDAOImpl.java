@@ -53,6 +53,10 @@ public class MagazineDAOImpl implements MagazineDAO {
 	        		return;
 	        	}
 	        	System.out.println("");
+	        	System.out.printf("%-15s %-30s %-30s %-20s %-30s%n",
+	        			"MagazineID","Title","Genre","Frequency","Publisher");
+	        	 System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------");
+		           
 	        	while(resultSet.next()) {
 	        		Magazine mag = new Magazine(
 	                        resultSet.getString("title"),
@@ -61,8 +65,13 @@ public class MagazineDAOImpl implements MagazineDAO {
 	                        resultSet.getString("publisher")
 	                    );
 	                    mag.setMagazineId(resultSet.getInt("magazine_id"));
-	                    
-	                    System.out.println(mag);
+	                    System.out.printf("%-15d %-30s %-30s %-20s %-30s %n",
+		                        mag.getMagazineId(), 
+		                        mag.getTitle(), 
+		                        mag.getGenre(),
+		                        mag.getPublicationFrequency(), 
+		                        mag.getPublisher());
+	                    //System.out.println(mag);
 	        	}
 	        }
 //	        for (Magazine m : magazines) {

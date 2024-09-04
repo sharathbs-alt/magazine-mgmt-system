@@ -111,6 +111,10 @@ public class SubscriptionDAOImpl implements SubscriptionDAO {
             	 return;
              }
              System.out.println("");
+             System.out.printf("%-20s %-15s %-15s %-15s %-15s %-10s%n",
+	        			"SubscriptionID","UserID","MagazineID","Subs Date","Exp Date", "Status");
+	        	 System.out.println("-------------------------------------------------------------------------------------------------------------");
+		      
             while (resultSet.next()) {
                 Subscription sub = new Subscription(
                         resultSet.getInt("subscription_id"),
@@ -120,7 +124,14 @@ public class SubscriptionDAOImpl implements SubscriptionDAO {
                         resultSet.getDate("expiry_date"),
                         resultSet.getString("status")
                 );
-                System.out.println(sub);
+                System.out.printf("%-20s %-15s %-15s %-15s %-15s %-10s%n",
+	        			sub.getSubscriptionId(),
+	        			sub.getUserId(),
+	        			sub.getMagazineId(),
+	        			sub.getSubscriptionDate().toString(),
+	        			sub.getExpiryDate().toString(),
+	        			sub.getStatus().toUpperCase());
+                //System.out.println(sub);
             }
         } catch (SQLException e) {
             e.printStackTrace();

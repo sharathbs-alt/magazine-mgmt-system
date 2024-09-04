@@ -77,6 +77,9 @@ public class ArticleDAOImpl implements ArticleDAO {
 	        		return;
 	        	}
 	        	System.out.println("");
+	        	System.out.printf("%-10s %-15s %-40s %-15s %-20s %-20s %n", 
+                        "ArticleID", "MagazineID", "Title", "Publish Date", "Author", "Content");
+                System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------");
 	            while (resultSet.next()) {
 	                Article a = new Article(
 	                        resultSet.getInt("article_id"),
@@ -86,8 +89,14 @@ public class ArticleDAOImpl implements ArticleDAO {
 	                        resultSet.getString("content"),
 	                        resultSet.getDate("publish_date")
 	                );
-	                
-	                System.out.println(a);
+	                System.out.printf("%-10d %-15d %-40s %-15s %-20s %-20s%n",
+	                        a.getArticleId(), 
+	                        a.getMagazineId(), 
+	                        a.getTitle(), 
+	                        a.getPublishDate().toString(),
+	                        a.getAuthor(), 
+	                        a.getContent());
+	                //System.out.println(a);
 	            }
 	        } catch (SQLException e) {
 	            e.printStackTrace();
