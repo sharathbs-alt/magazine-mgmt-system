@@ -22,7 +22,15 @@ public class Article {
         this.publishDate = publishDate;
     }
 
-    // Getters and Setters
+    public Article(int magazineId, String title, String author, String content, Date publishDate) {
+		this.magazineId = magazineId;
+		this.title = title;
+		this.author = author;
+		this.content = content;
+		this.publishDate = publishDate;
+	}
+
+	// Getters and Setters
     public int getArticleId() {
         return articleId;
     }

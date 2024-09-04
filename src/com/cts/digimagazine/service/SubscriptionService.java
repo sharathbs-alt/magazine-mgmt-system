@@ -1,9 +1,14 @@
 package com.cts.digimagazine.service;
 
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import com.cts.digimagazine.dao.SubscriptionDAO;
 import com.cts.digimagazine.dao.impl.SubscriptionDAOImpl;
 import com.cts.digimagazine.model.Subscription;
@@ -52,15 +57,12 @@ public class SubscriptionService {
     }
 
     private void addSubscription(Scanner scanner) {
-        System.out.print("Enter Subscription ID: ");
-        int subscriptionId = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
         System.out.print("Enter User ID: ");
         int userId = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine(); 
         System.out.print("Enter Magazine ID: ");
         int magazineId = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine();
         System.out.print("Enter Subscription Date (DD-MM-YYYY): ");
         String subscriptionDateString = scanner.nextLine();
         System.out.print("Enter Expiry Date (DD-MM-YYYY): ");
@@ -76,12 +78,20 @@ public class SubscriptionService {
             return;
         }
 
-        Subscription subscription = new Subscription(subscriptionId, userId, magazineId, subscriptionDate, expiryDate, status);
-        subscriptionDAO.addSubscription(subscription);
+        Subscription subscription = new Subscription(0, userId, magazineId, subscriptionDate, expiryDate, status);
+        try {
+            subscriptionDAO.addSubscription(subscription);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error adding subscription: " + e.getMessage());
+        }
     }
 
     private void viewSubscriptions() {
-        subscriptionDAO.viewSubscription(null); // Assuming the method prints all subscriptions.
+    	 try {
+             subscriptionDAO.viewSubscription(null);
+         } catch (SQLException e) {
+             throw new RuntimeException("Error viewing subscriptions: " + e.getMessage());
+         }
     }
 
     private void updateSubscription(Scanner scanner) {
@@ -89,7 +99,12 @@ public class SubscriptionService {
         int subscriptionId = scanner.nextInt();
         scanner.nextLine(); // Consume newline
         
-        Subscription existingSubscription = subscriptionDAO.findSubscriptionById(subscriptionId);
+        Subscription existingSubscription = null;
+        try {
+            existingSubscription = subscriptionDAO.findSubscriptionById(subscriptionId);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finding subscription by ID: " + e.getMessage());
+        }
         if (existingSubscription == null) {
             System.out.println("Subscription with ID " + subscriptionId + " not found.");
             return;
@@ -97,10 +112,10 @@ public class SubscriptionService {
 
         System.out.print("Enter new User ID: ");
         int userId = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine(); 
         System.out.print("Enter new Magazine ID: ");
         int magazineId = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine(); 
         System.out.print("Enter new Subscription Date (DD-MM-YYYY): ");
         String subscriptionDateString = scanner.nextLine();
         System.out.print("Enter new Expiry Date (DD-MM-YYYY): ");
@@ -117,7 +132,11 @@ public class SubscriptionService {
         }
 
         Subscription updatedSubscription = new Subscription(subscriptionId, userId, magazineId, subscriptionDate, expiryDate, status);
-        subscriptionDAO.updateSubscription(updatedSubscription);
+        try {
+            subscriptionDAO.updateSubscription(updatedSubscription);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating subscription: " + e.getMessage());
+        }
     }
 
     private void deleteSubscription(Scanner scanner) {
@@ -126,7 +145,11 @@ public class SubscriptionService {
         scanner.nextLine(); 
 
         Subscription subscription = new Subscription(subscriptionId, 0, 0, new Date(), new Date(), ""); // Initialize with default empty values
-        subscriptionDAO.deleteSubscription(subscription);
+        try {
+            subscriptionDAO.deleteSubscription(subscription);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error deleting subscription: " + e.getMessage());
+        }
     }
 
     // Helper method to parse a date string
@@ -136,5 +159,13 @@ public class SubscriptionService {
         } catch (ParseException e) {
             return null; // Return null if the date format is invalid
         }
+    }
+    
+ // Method to schedule periodic updates
+    public void scheduleStatusUpdate() {
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(() -> {
+            subscriptionDAO.updateSubscriptionStatus();
+        }, 0, 1, TimeUnit.DAYS); // Runs every day
     }
 }

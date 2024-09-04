@@ -48,7 +48,10 @@ public class MagazineDAOImpl implements MagazineDAO {
 	        try (Connection connection = dbUtil.getConnection();
 		             Statement statement = connection.createStatement();
 	        		ResultSet resultSet = statement.executeQuery(query) ){
-	        	
+	        	if(!resultSet.isBeforeFirst()) {
+	        		System.out.println("No magazines Found");
+	        		return;
+	        	}
 	        	while(resultSet.next()) {
 	        		Magazine mag = new Magazine(
 	                        resultSet.getString("title"),
@@ -67,7 +70,7 @@ public class MagazineDAOImpl implements MagazineDAO {
 	    }
 		
 		@Override
-	    public void updateMagazine(Magazine magazine) {
+	    public void updateMagazine(Magazine magazine) throws SQLException {
 //	        for (Magazine m : magazines) {
 //	            if (m.getMagazineId() == magazine.getMagazineId()) {
 //	                m.setTitle(magazine.getTitle());
@@ -80,6 +83,9 @@ public class MagazineDAOImpl implements MagazineDAO {
 //	            	System.out.println("Magazine with ID " + magazine.getMagazineId() + " not found.");
 //	            }
 //	        }
+			if (hasArticles(magazine.getMagazineId())) {
+		        throw new RuntimeException("Cannot update magazine with ID " + magazine.getMagazineId() + " because it has associated articles.");
+		    }
 			String query = "UPDATE Magazine SET title = ?, genre = ?, publication_frequency = ?, publisher = ? WHERE magazine_id = ?";
 		    
 		    try (Connection connection = dbUtil.getConnection();
@@ -107,10 +113,30 @@ public class MagazineDAOImpl implements MagazineDAO {
 		    }
 	    }
 		
+		//Helper for deletion
+		public boolean hasArticles(int magazineId) throws SQLException {
+		    String query = "SELECT COUNT(*) FROM Article WHERE magazine_id = ?";
+		    try (Connection connection = dbUtil.getConnection();
+		         PreparedStatement statement = connection.prepareStatement(query)) {
+
+		        statement.setInt(1, magazineId);
+		        ResultSet resultSet = statement.executeQuery();
+
+		        if (resultSet.next()) {
+		            int count = resultSet.getInt(1);
+		            return count > 0;
+		        }
+		    }
+		    return false;
+		}
+		
 		@Override
-	    public void deleteMagazine(Magazine magazine) {
+	    public void deleteMagazine(Magazine magazine) throws SQLException {
 //	        magazines.removeIf(m -> m.getMagazineId() == magazine.getMagazineId());
 //	        System.out.println("Magazine deleted successfully!");
+			if (hasArticles(magazine.getMagazineId())) {
+		        throw new RuntimeException("Cannot delete magazine with ID " + magazine.getMagazineId() + " because it has associated articles.");
+		    }
 			 String query = "DELETE FROM Magazine WHERE magazine_id = ?";
 		        try (Connection connection = dbUtil.getConnection();
 		             PreparedStatement statement = connection.prepareStatement(query)) {
