@@ -11,7 +11,9 @@ import java.sql.Statement;
 import com.cts.digimagazine.model.Article;
 import com.cts.digimagazine.util.DatabaseUtil;
 import com.cts.digimagazine.dao.ArticleDAO;
+import com.cts.digimagazine.exceptions.InvalidSubscriptionStatusException;
 import com.cts.digimagazine.exceptions.MagazineNotFoundException;
+import com.cts.digimagazine.exceptions.UserNotFoundException;
 
 public class ArticleDAOImpl implements ArticleDAO {
 
@@ -36,13 +38,13 @@ public class ArticleDAOImpl implements ArticleDAO {
 		}
 		@Override
 	    public void addArticle(Article article) throws SQLException {
-			if (!isMagazineIdValid(article.getMagazineId())) {
-		        throw new MagazineNotFoundException("Invalid magazine_id: " + article.getMagazineId());
-		    }
-			
 			String query = "INSERT INTO Article (magazine_id, title, author, content, publish_date) VALUES (?, ?, ?, ?, ?)";
 	        try (Connection connection = dbUtil.getConnection();
 	             PreparedStatement statement = connection.prepareStatement(query)) {
+	        	
+	        	if (!isMagazineIdValid(article.getMagazineId())) {
+	        		throw new MagazineNotFoundException("Invalid magazine_id: " + article.getMagazineId());
+	        	}
 	        	
 	        	statement.setInt(1, article.getMagazineId());
 	            statement.setString(2, article.getTitle());
@@ -54,7 +56,10 @@ public class ArticleDAOImpl implements ArticleDAO {
 	            if (rowsInserted > 0) {
 	                System.out.println("Article added successfully!");
 	            }
-	        } catch (SQLException e) {
+	        }
+	        catch (MagazineNotFoundException e) {
+	            System.err.println(e.getMessage());
+	        }catch (SQLException e) {
 	            e.printStackTrace();
 	            throw new RuntimeException("Error adding article: " + e.getMessage());
 	        }
@@ -92,13 +97,13 @@ public class ArticleDAOImpl implements ArticleDAO {
 		
 	    @Override
 	    public void updateArticle(Article article) throws SQLException{
-	    	if (!isMagazineIdValid(article.getMagazineId())) {
-	            throw new MagazineNotFoundException("Invalid magazine_id: " + article.getMagazineId());
-	        }
 	    	String query = "UPDATE Article SET magazine_id = ?, title = ?, author = ?, content = ?, publish_date = ? WHERE article_id = ?";
 	        try (Connection connection = dbUtil.getConnection();
 	             PreparedStatement statement = connection.prepareStatement(query)) {
 
+	        	if (!isMagazineIdValid(article.getMagazineId())) {
+	        		throw new MagazineNotFoundException("Invalid magazine_id: " + article.getMagazineId());
+	        	}
 	        	statement.setInt(1, article.getMagazineId());
 	            statement.setString(2, article.getTitle());
 	            statement.setString(3, article.getAuthor());
@@ -112,7 +117,10 @@ public class ArticleDAOImpl implements ArticleDAO {
 	            } else {
 	                System.out.println("Article with ID " + article.getArticleId() + " not found.");
 	            }
-	        } catch (SQLException e) {
+	        } 
+	        catch (MagazineNotFoundException e) {
+	            System.err.println(e.getMessage());
+	        }catch (SQLException e) {
 	            e.printStackTrace();
 	            throw new RuntimeException("Error updating article: " + e.getMessage());
 	        }
@@ -125,7 +133,7 @@ public class ArticleDAOImpl implements ArticleDAO {
 	              PreparedStatement statement = connection.prepareStatement(query)) {
 
 	             statement.setInt(1, article.getArticleId());
-
+	             
 	             int rowsDeleted = statement.executeUpdate();
 	             if (rowsDeleted > 0) {
 	                 System.out.println("Article deleted successfully!");
@@ -158,7 +166,6 @@ public class ArticleDAOImpl implements ArticleDAO {
 	                 }
 	             }
 	         } catch (SQLException e) {
-	             e.printStackTrace();
 	             throw new RuntimeException("Error finding article by ID: " + e.getMessage());
 	         }
 	         return null;    

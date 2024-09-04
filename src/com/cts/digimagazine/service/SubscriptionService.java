@@ -24,6 +24,10 @@ public class SubscriptionService {
         this.dateFormat.setLenient(false);
     }
 
+    /**
+     * Manages subscription-related operations by providing a menu interface to the user.
+     * @param scanner Scanner object for user input.
+     */
     public void manageSubscriptions(Scanner scanner) {
         while (true) {
         	System.out.println("");
@@ -61,7 +65,10 @@ public class SubscriptionService {
         }
     }
 
-    //Helper for Validating status
+    /**
+     * Adds a new subscription to the system based on user input.
+     * @param scanner Scanner object for user input.
+     */
     
     private void addSubscription(Scanner scanner) {
         System.out.print("Enter User ID: ");
@@ -93,6 +100,9 @@ public class SubscriptionService {
         }
     }
 
+    /**
+     * Displays all subscriptions in the system.
+     */
     private void viewSubscriptions() {
     	 try {
              subscriptionDAO.viewSubscription(null);
@@ -101,6 +111,10 @@ public class SubscriptionService {
          }
     }
 
+    /**
+     * Updates an existing subscription's information based on user input.
+     * @param scanner Scanner object for user input.
+     */
     private void updateSubscription(Scanner scanner) {
         System.out.print("Enter Subscription ID to update: ");
         int subscriptionId = scanner.nextInt();
@@ -109,9 +123,7 @@ public class SubscriptionService {
         Subscription existingSubscription = null;
         try {
             existingSubscription = subscriptionDAO.findSubscriptionById(subscriptionId);
-        } catch (SQLException e) {
-            throw new SubscriptionNotFoundException("Error finding subscription by ID: " + e.getMessage());
-        }
+        
         if (existingSubscription == null) {
             System.out.println("Subscription with ID " + subscriptionId + " not found.");
             return;
@@ -139,27 +151,38 @@ public class SubscriptionService {
         }
 
         Subscription updatedSubscription = new Subscription(subscriptionId, userId, magazineId, subscriptionDate, expiryDate, status);
-        try {
+       
             subscriptionDAO.updateSubscription(updatedSubscription);
-        } catch (SQLException e) {
+        } catch (SubscriptionNotFoundException e) {
+            throw new SubscriptionNotFoundException("Error finding subscription by ID: " + e.getMessage());
+        }
+         catch (SQLException e) {
             throw new RuntimeException("Error updating subscription: " + e.getMessage());
         }
     }
 
+    /**
+     * Deletes a subscription from the system based on the provided ID.
+     * @param scanner Scanner object for user input.
+     */
     private void deleteSubscription(Scanner scanner) {
         System.out.print("Enter Subscription ID to delete: ");
         int subscriptionId = scanner.nextInt();
         scanner.nextLine(); 
-
-        Subscription subscription = new Subscription(subscriptionId, 0, 0, new Date(), new Date(), ""); // Initialize with default empty values
         try {
+        	
+        Subscription subscription = new Subscription(subscriptionId, 0, 0, new Date(), new Date(), ""); // Initialize with default empty values
             subscriptionDAO.deleteSubscription(subscription);
         } catch (SQLException e) {
             throw new RuntimeException("Error deleting subscription: " + e.getMessage());
         }
     }
 
-    // Helper method to parse a date string
+    /**
+     * Parses a date string in the format DD-MM-YYYY.
+     * @param dateString The date string to parse.
+     * @return The parsed Date object or null if the format is invalid.
+     */
     private Date parseDate(String dateString) {
         try {
             return dateFormat.parse(dateString);
@@ -168,7 +191,9 @@ public class SubscriptionService {
         }
     }
     
- // Method to schedule periodic updates
+    /**
+     * Schedules periodic updates for subscription statuses using a fixed-rate scheduler.
+     */
     public void scheduleStatusUpdate() {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(() -> {

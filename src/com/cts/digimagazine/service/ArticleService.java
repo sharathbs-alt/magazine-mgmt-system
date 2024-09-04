@@ -26,6 +26,10 @@ public class ArticleService {
         this.dateFormat.setLenient(false);
     }
 
+    /**
+     * Manages the article-related operations by providing a menu interface to the user.
+     * @param scanner Scanner object for user input.
+     */
     public void manageArticles(Scanner scanner) {
         while (true) {
         	System.out.println("");
@@ -40,7 +44,7 @@ public class ArticleService {
             System.out.println("");
 
             int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            scanner.nextLine(); 
 
             switch (choice) {
                 case 1:
@@ -62,7 +66,10 @@ public class ArticleService {
             }
         }
     }
-
+    /**
+     * Adds a new article to the system by taking input from the user.
+     * @param scanner Scanner object for user input.
+     */
     private void addArticle(Scanner scanner) {
         System.out.print("Enter Magazine ID: ");
         int magazineId = scanner.nextInt();
@@ -91,6 +98,9 @@ public class ArticleService {
         }
     }
 
+    /**
+     * Displays all articles in the system.
+     */
     private void viewArticles() {
     	try {
             articleDAO.viewArticle(null); 
@@ -100,17 +110,22 @@ public class ArticleService {
 
     }
 
+    /**
+     * Updates an existing article's information based on user input.
+     * @param scanner Scanner object for user input.
+     */
     private void updateArticle(Scanner scanner) {
         System.out.print("Enter Article ID to update: ");
         int articleId = scanner.nextInt();
         scanner.nextLine(); // Consume newline
         
+        try {
         Article existingArticle = articleDAO.findArticleById(articleId);
         if (existingArticle == null) {
 //            System.out.println("Article with ID " + articleId + " not found.");
 //            return;
         	throw new ArticleNotFoundException("Article with ID " + articleId + " not found.");
-        }
+        	}
 
         System.out.print("Enter new Magazine ID: ");
         int magazineId = scanner.nextInt();
@@ -132,26 +147,45 @@ public class ArticleService {
         }
 
         Article updatedArticle = new Article(articleId, magazineId, title, author, content, publishDate);
-        try {
             articleDAO.updateArticle(updatedArticle);
-        } catch (SQLException e) {
+        }catch(ArticleNotFoundException e) {
+        	System.err.println(e.getMessage());
+        }
+        catch (SQLException e) {
             throw new RuntimeException("Error updating article: " + e.getMessage());
         }
     }
 
+    /**
+     * Deletes an article from the system based on the provided ID.
+     * @param scanner Scanner object for user input.
+     */
     private void deleteArticle(Scanner scanner) {
         System.out.print("Enter Article ID to delete: ");
         int articleId = scanner.nextInt();
         scanner.nextLine(); 
 
-        Article article = new Article(articleId, 0, "", "", "", new Date(0));
         try {
+            Article existingArticle = articleDAO.findArticleById(articleId);
+            if (existingArticle == null) {
+//                System.out.println("Article with ID " + articleId + " not found.");
+//                return;
+            	throw new ArticleNotFoundException("Article with ID " + articleId + " not found.");
+            	}
+            Article article = new Article(articleId, 0, "", "", "", new Date(0));
             articleDAO.deleteArticle(article);
-        } catch (SQLException e) {
+        } catch(ArticleNotFoundException e) {
+        	System.err.println(e.getMessage());
+        }catch (SQLException e) {
             throw new RuntimeException("Error deleting article: " + e.getMessage());
         }
     }
     
+    /**
+     * Parses a date string in the format DD-MM-YYYY.
+     * @param dateString The date string to parse.
+     * @return The parsed Date object or null if the format is invalid.
+     */
     private Date parseDate(String dateString) {
         try {
             return dateFormat.parse(dateString);

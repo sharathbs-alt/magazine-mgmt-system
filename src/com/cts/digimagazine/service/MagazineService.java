@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 import com.cts.digimagazine.dao.MagazineDAO;
 import com.cts.digimagazine.dao.impl.MagazineDAOImpl;
+import com.cts.digimagazine.exceptions.MagazineNotFoundException;
 import com.cts.digimagazine.model.Magazine;
 
 public class MagazineService {
@@ -14,6 +15,10 @@ public class MagazineService {
 	        this.magazineDAO = new MagazineDAOImpl(); 
 	    }
 
+	    /**
+	     * Manages magazine-related operations by providing a menu interface to the user.
+	     * @param scanner Scanner object for user input.
+	     */
 	    public void manageMagazines(Scanner scanner) {
 	        while (true) {
 	        	System.out.println("");
@@ -51,6 +56,10 @@ public class MagazineService {
 	        }
 	    }
 
+	    /**
+	     * Adds a new magazine to the system based on user input.
+	     * @param scanner Scanner object for user input.
+	     */
 	    private void addMagazine(Scanner scanner){
 	    	
 	        System.out.print("Enter Magazine Title: ");
@@ -66,10 +75,13 @@ public class MagazineService {
 	        try {
 	        	magazineDAO.addMagazine(magazine);
 	        }catch(Exception e) {
-	        	throw new RuntimeException("Error connecting to the DB" +e);
+	        	throw new RuntimeException("Error adding the magazine" +e);
 	        }
 	    }
 
+	    /**
+	     * Displays all magazines in the system.
+	     */
 	    private void viewMagazines() {
 	    	try {
 	    		
@@ -79,33 +91,43 @@ public class MagazineService {
 	    	}
 	    }
 
+	    /**
+	     * Updates an existing magazine's information based on user input.
+	     * @param scanner Scanner object for user input.
+	     */
 	    private void updateMagazine(Scanner scanner) {
 	    	 System.out.print("Enter Magazine ID to update: ");
 	    	    int id = scanner.nextInt();
 	    	    scanner.nextLine(); 
-	    	    Magazine existingMagazine = magazineDAO.findMagazineById(id);
-	    	    if (existingMagazine == null) {
-	    	        System.out.println("Magazine with ID " + id + " not found.");
-	    	        return;
-	    	    }
-
-	    	    Magazine updatedMagazine = new Magazine(id,"", "", "", "");
-	    	    System.out.print("Enter new Title: ");
-	    	    updatedMagazine.setTitle(scanner.nextLine());
-	    	    System.out.print("Enter new Genre: ");
-	    	    updatedMagazine.setGenre(scanner.nextLine());
-	    	    System.out.print("Enter new Publication Frequency: ");
-	    	    updatedMagazine.setPublicationFrequency(scanner.nextLine());
-	    	    System.out.print("Enter new Publisher: ");
-	    	    updatedMagazine.setPublisher(scanner.nextLine());
-
 	    	    try {
+		    	    Magazine existingMagazine = magazineDAO.findMagazineById(id);
+		    	    if (existingMagazine == null) {
+		    	        throw new MagazineNotFoundException("Magazine Not Found");
+		    	    }
+	
+		    	    Magazine updatedMagazine = new Magazine(id,"", "", "", "");
+		    	    System.out.print("Enter new Title: ");
+		    	    updatedMagazine.setTitle(scanner.nextLine());
+		    	    System.out.print("Enter new Genre: ");
+		    	    updatedMagazine.setGenre(scanner.nextLine());
+		    	    System.out.print("Enter new Publication Frequency: ");
+		    	    updatedMagazine.setPublicationFrequency(scanner.nextLine());
+		    	    System.out.print("Enter new Publisher: ");
+		    	    updatedMagazine.setPublisher(scanner.nextLine());
+
 	    	        magazineDAO.updateMagazine(updatedMagazine);
-	    	    } catch (Exception e) {
+	    	    	}catch(MagazineNotFoundException e) {
+	    	    		System.err.println(e.getMessage());
+	    	    	}
+	    	    	catch (Exception e) {
 	    	        throw new RuntimeException("Operation couldn't be performed: " + e.getMessage());
-	    	    }
+	    	    	}
 	    	}
 
+	    /**
+	     * Deletes a magazine from the system based on the provided ID.
+	     * @param scanner Scanner object for user input.
+	     */
 	    private void deleteMagazine(Scanner scanner) {
 	        System.out.print("Enter Magazine ID to delete: ");
 	        int id = scanner.nextInt();
